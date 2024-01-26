@@ -1,0 +1,39 @@
+<script>
+    const express = require('express');
+const fs = require('fs');
+
+const app = express();
+const port = 3000;
+
+const dataFolderPath = '/tmp/data/';
+
+app.get('/data', (req, res) => {
+  const { n, m } = req.query;
+
+  if (!n) {
+    return res.status(400).json({ error: 'File name (n) is required.' });
+  }
+
+  const filePath = `${dataFolderPath}${n}.txt`;
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'File not found.' });
+  }
+
+  if (m) {
+    // Return specific line
+    const lineNumber = parseInt(m);
+    const lineContent = fs.readFileSync(filePath, 'utf-8').split('\n')[lineNumber - 1];
+    res.send({ line: lineContent });
+  } else {
+    // Return entire file content
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    res.send({ content: fileContent });
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`);
+});
+
+</script>
